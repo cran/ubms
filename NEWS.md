@@ -1,3 +1,15 @@
+# ubms v1.0.2
+
+* Make default priors less informative
+* Fix issues in `sim_z` C++ code that triggered clang-UBSAN errors
+* Fix various minor issues with checks/tests on R-oldrel 
+
+# ubms v1.0.1
+
+* Added vignette comparing ubms and JAGS output
+* Added configuration for pkgdown site
+* Small adjustments to wording in DESCRIPTION and docs for CRAN submission
+
 # ubms v0.1.9
 
 * Add time-to-detection occupancy model (`stan_occuTTD`)

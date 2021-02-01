@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.0.1
-Date: 2021-01-15
+Version: 1.0.2
+Date: 2021-02-01
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -37,8 +37,8 @@ Collate: 'RcppExports.R' 'submodel.R' 'response.R' 'inputs.R' 'fit.R'
         'stanmodels.R' 'ubms-package.R' 'ubmsFit-methods.R'
         'ubmsFitList-methods.R' 'umf.R' 'utils.R'
 NeedsCompilation: yes
-Packaged: 2021-01-15 18:00:03 UTC; ken
+Packaged: 2021-02-01 13:30:47 UTC; ken
 Author: Ken Kellner [cre, aut]
 Maintainer: Ken Kellner <contact@kenkellner.com>
 Repository: CRAN
-Date/Publication: 2021-01-19 09:30:03 UTC
+Date/Publication: 2021-02-02 00:10:13 UTC
