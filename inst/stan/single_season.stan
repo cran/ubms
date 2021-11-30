@@ -7,6 +7,7 @@ functions{
 #include /include/functions_distsamp.stan
 #include /include/functions_multinomPois.stan
 #include /include/functions_occuTTD.stan
+#include /include/functions_priors.stan
 
 }
 
@@ -14,6 +15,15 @@ data{
 
 #include /include/data.stan
 
+}
+
+transformed data{
+
+int include_scale;
+int include_shape;
+
+include_scale = prior_dist_scale[1] == 0 ? 0 : 1;
+include_shape = prior_dist_shape[1] == 0 ? 0 : 1;
 }
 
 parameters{
@@ -27,9 +37,11 @@ transformed parameters{
 vector[M] lp_state;
 vector[n_obs_det] lp_det;
 vector[M] log_lik;
+real log_scale;
+real log_shape;
 
-lp_state = X_state * beta_state;
-lp_det = X_det * beta_det;
+lp_state = X_state * beta_state + offset_state;
+lp_det = X_det * beta_det + offset_det;
 
 if(has_random_state){
   lp_state = lp_state +
@@ -42,29 +54,22 @@ if(has_random_det){
                                     Zv_det, Zu_det, b_det);
 }
 
-if(model_code == 0){
-  log_lik = get_loglik_occu(y, M, J, si, lp_state, lp_det, Kmin[,1]);
-} else if(model_code == 1){
-  log_lik = get_loglik_rn(y, M, J, si, lp_state, lp_det, K, Kmin[,1]);
-} else if(model_code == 2){
-  log_lik = get_loglik_pcount(y, M, J, si, lp_state, lp_det, z_dist,
-                              beta_scale, K, Kmin[,1]);
-} else if(model_code == 4){
-  log_lik = get_loglik_distsamp(y, M, aux2, si, lp_state, lp_det, z_dist,
-                                beta_scale, aux1[1], y_dist, aux3);
-} else if(model_code == 5){
-  log_lik = get_loglik_multinomPois(y, M, si, lp_state, lp_det, y_dist);
-} else if(model_code == 6){
-  log_lik = get_loglik_occuTTD(aux2, M, si, lp_state, lp_det, beta_shape,
-                               aux1, y_dist);
+log_scale = 0;
+if(include_scale){
+  log_scale = beta_scale[1];
 }
+log_shape = 0;
+if(include_shape){
+  log_shape = beta_shape[1];
+}
+
+#include /include/call_loglik_functions.stan
 
 }
 
 model{
 
-#include /include/rand_priors_single_season.stan
-#include /include/fixed_priors_single_season.stan
+#include /include/priors_single_season.stan
 
 target += sum(log_lik);
 

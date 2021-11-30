@@ -10,6 +10,15 @@ stan_colext(
   epsilonformula = ~1,
   pformula = ~1,
   data,
+  prior_intercept_psi = logistic(0, 1),
+  prior_coef_psi = logistic(0, 1),
+  prior_intercept_gamma = logistic(0, 1),
+  prior_coef_gamma = logistic(0, 1),
+  prior_intercept_eps = logistic(0, 1),
+  prior_coef_eps = logistic(0, 1),
+  prior_intercept_det = logistic(0, 1),
+  prior_coef_det = logistic(0, 1),
+  prior_sigma = gamma(1, 1),
   ...
 )
 }
@@ -24,6 +33,32 @@ occupancy at each site}
 \item{pformula}{Right-hand sided formula for detection probability}
 
 \item{data}{A \code{\link{unmarkedMultFrame}} object}
+
+\item{prior_intercept_psi}{Prior distribution for the intercept of the
+psi (initial occupancy probability) model; see \code{?priors} for options}
+
+\item{prior_coef_psi}{Prior distribution for the regression coefficients of
+the psi model}
+
+\item{prior_intercept_gamma}{Prior distribution on intercept for
+colonization probability}
+
+\item{prior_coef_gamma}{Prior distribution on regression coefficients for
+colonization probability}
+
+\item{prior_intercept_eps}{Prior distribution on intercept for
+extinction probability}
+
+\item{prior_coef_eps}{Prior distribution on regression coefficients for
+extinction probability}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

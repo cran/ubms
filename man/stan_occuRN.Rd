@@ -4,7 +4,17 @@
 \alias{stan_occuRN}
 \title{Fit the Occupancy Model of Royle and Nichols (2003)}
 \usage{
-stan_occuRN(formula, data, K = 20, ...)
+stan_occuRN(
+  formula,
+  data,
+  K = 20,
+  prior_intercept_state = normal(0, 5),
+  prior_coef_state = normal(0, 2.5),
+  prior_intercept_det = logistic(0, 1),
+  prior_coef_det = logistic(0, 1),
+  prior_sigma = gamma(1, 1),
+  ...
+)
 }
 \arguments{
 \item{formula}{Double right-hand side formula describing covariates of
@@ -15,6 +25,20 @@ detection and abundance in that order}
 \item{K}{Integer upper index of integration for N-mixture. This should be
 set high enough so that it does not affect the parameter estimates.
 Note that computation time will increase with K.}
+
+\item{prior_intercept_state}{Prior distribution for the intercept of the
+state (abundance) model; see \code{?priors} for options}
+
+\item{prior_coef_state}{Prior distribution for the regression coefficients of
+the state model}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+detection probability model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the detection model}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

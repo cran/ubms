@@ -5,7 +5,10 @@ setClass("ubmsSubmodel",
     data = "data.frame",
     formula = "formula",
     link = "character",
-    missing = "logical"
+    missing = "logical",
+    prior_intercept = "list",
+    prior_coef = "list",
+    prior_sigma = "list"
   ),
   prototype = list(
     name = NA_character_,
@@ -13,13 +16,18 @@ setClass("ubmsSubmodel",
     data = data.frame(),
     formula = ~1,
     link = NA_character_,
-    missing = logical(0)
+    missing = logical(0),
+    prior_intercept = list(),
+    prior_coef = list(),
+    prior_sigma = list()
   )
 )
 
-ubmsSubmodel <- function(name, type, data, formula, link){
+ubmsSubmodel <- function(name, type, data, formula, link,
+                         prior_intercept, prior_coef, prior_sigma){
   out <- new("ubmsSubmodel", name=name, type=type, data=data,
-             formula=formula, link=link)
+             formula=formula, link=link, prior_intercept=prior_intercept,
+             prior_coef=prior_coef, prior_sigma=prior_sigma)
   out@missing <- apply(model.matrix(out), 1, function(x) any(is.na(x)))
   out
 }
@@ -27,9 +35,11 @@ ubmsSubmodel <- function(name, type, data, formula, link){
 setClass("ubmsSubmodelTransition", contains = "ubmsSubmodel")
 
 #' @importFrom methods as
-ubmsSubmodelTransition <- function(name, type, data, formula, link, T){
+ubmsSubmodelTransition <- function(name, type, data, formula, link, T,
+                                   prior_intercept, prior_coef, prior_sigma){
   data <- drop_final_year(data, T)
-  out <- ubmsSubmodel(name, type, data, formula, link)
+  out <- ubmsSubmodel(name, type, data, formula, link, prior_intercept,
+                      prior_coef, prior_sigma)
   out <- as(out, "ubmsSubmodelTransition")
   if(any(out@missing)){
     stop("Missing values are not allowed in yearlySiteCovs", call.=FALSE)
@@ -45,36 +55,68 @@ drop_final_year <- function(yr_df, nprimary){
 
 setClass("ubmsSubmodelScalar", contains = "ubmsSubmodel")
 
-ubmsSubmodelScalar <- function(name, type, link){
-  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link)
+ubmsSubmodelScalar <- function(name, type, link, prior_intercept){
+  out <- ubmsSubmodel(name, type, data.frame(1), ~1, link,
+                      prior_intercept, null_prior(), null_prior())
   as(out, "ubmsSubmodelScalar")
 }
 
 placeholderSubmodel <- function(type){
-  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity")
+  ubmsSubmodel("Placeholder", type, data.frame(), ~1, "identity",
+                null_prior(), null_prior(), null_prior())
 }
 
 is_placeholder <- function(submodel){
   length(model.matrix(submodel)) == 0
 }
 
-setMethod("model.matrix", "ubmsSubmodel",
-          function(object, newdata=NULL, na.rm=FALSE, ...){
+setGeneric("model_frame", function(object, ...)
+           standardGeneric("model_frame"))
+
+# Need to make this a different generic
+setMethod("model_frame", "ubmsSubmodel",
+          function(object, newdata=NULL, ...){
 
   data <- object@data
   formula <- lme4::nobars(object@formula)
   mf <- model.frame(formula, data, na.action=stats::na.pass)
 
-  if(is.null(newdata)){
-    out <- model.matrix(formula, mf)
-    if(na.rm) out <- out[!object@missing,,drop=FALSE]
-    return(out)
-  }
+  if(is.null(newdata)) return(mf)
 
   check_newdata(newdata, formula)
-  new_mf <- model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
+  model.frame(stats::terms(mf), newdata, na.action=stats::na.pass,
                         xlev=get_xlev(data, mf))
-  model.matrix(formula, new_mf)
+})
+
+setMethod("model.matrix", "ubmsSubmodel",
+          function(object, newdata=NULL, na.rm=FALSE, warn=FALSE, ...){
+  mf <- model_frame(object, newdata)
+  formula <- lme4::nobars(object@formula)
+  out <- model.matrix(formula, mf)
+  if(na.rm) out <- out[!object@missing,,drop=FALSE]
+  if(warn){
+    max_cov <- max(out, na.rm=TRUE)
+    if(max_cov > 4){
+      warning(paste0("Covariates possibly not standardized (max value = ", max_cov,
+                    ").\nStandardizing covariates is highly recommended."), call.=FALSE)
+    }
+  }
+  out
+})
+
+setGeneric("model_offset", function(object, ...) standardGeneric("model_offset"))
+
+setMethod("model_offset", "ubmsSubmodel", function(object, newdata=NULL, na.rm=FALSE, ...){
+  mf <- model_frame(object, newdata)
+  off <- stats::model.offset(mf)
+  if(is.null(off)){
+    mm <- model.matrix(object, newdata, na.rm)
+    off <- rep(0, nrow(mm))
+  } else if(na.rm){
+    off <- off[!object@missing]
+  }
+  if(any(is.na(off))) stop("Missing values in offset term are not allowed", call.=FALSE)
+  off
 })
 
 #Check if all required variables are in newdata

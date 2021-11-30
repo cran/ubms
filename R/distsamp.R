@@ -13,6 +13,17 @@
 #' @param output Model either density \code{"density"} or abundance \code{"abund"}
 #' @param unitsOut Units of density. Either \code{"ha"} or \code{"kmsq"} for
 #'  hectares and square kilometers, respectively
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (abundance) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
+#' @param prior_intercept_scale Prior distribution for the intercept of the
+#'  scale parameter (i.e., log(scale)) for Hazard-rate models
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -46,8 +57,17 @@
 #'
 #' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
 #' @export
-stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
-                          output=c("density", "abund"), unitsOut=c("ha", "kmsq"),
+stan_distsamp <- function(formula,
+                          data,
+                          keyfun=c("halfnorm", "exp", "hazard"),
+                          output=c("density", "abund"),
+                          unitsOut=c("ha", "kmsq"),
+                          prior_intercept_state = normal(0, 5),
+                          prior_coef_state = normal(0, 2.5),
+                          prior_intercept_det = normal(0, 5),
+                          prior_coef_det = normal(0, 2.5),
+                          prior_intercept_scale = normal(0,2.5),
+                          prior_sigma = gamma(1, 1),
                           ...){
 
   forms <- split_formula(formula)
@@ -59,15 +79,27 @@ stan_distsamp <- function(formula, data, keyfun=c("halfnorm", "exp", "hazard"),
   det_param <- switch(keyfun, halfnorm={"Scale"}, exp={"Rate"},
                       hazard={"Shape"})
 
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial(state_param, "state", siteCovs(umf), forms[[2]],
+                                 "exp", prior_intercept_state, prior_coef_state,
+                                 prior_sigma,
+                                 split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]],
+                          "exp", prior_intercept_state, prior_coef_state, prior_sigma)
+  }
+
   response <- ubmsResponseDistsamp(data, keyfun, "P", output, unitsOut)
-  state <- ubmsSubmodel(state_param, "state", siteCovs(umf), forms[[2]], "exp")
-  det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]], "exp")
+  det <- ubmsSubmodel(det_param, "det", siteCovs(umf), forms[[1]],
+                      "exp", prior_intercept_det, prior_coef_det, prior_sigma)
 
   scale <- placeholderSubmodel("scale")
   if(keyfun=="hazard"){
     warning("Hazard key function may perform poorly with small sample sizes",
             call.=FALSE)
-    scale <- ubmsSubmodelScalar("Scale", "scale", "exp")
+    scale <- ubmsSubmodelScalar("Scale", "scale", "exp", prior_intercept_scale)
   }
 
   submodels <- ubmsSubmodelList(state, det, scale)

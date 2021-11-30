@@ -91,6 +91,8 @@ setMethod("show", "ubmsFit", function(object){
 
   cat(paste0("LOOIC: ", round(object@loo$estimates[3,1], 3)))
   cat("\n")
+  cat("Runtime:", get_runtime(object))
+  cat("\n")
 })
 
 get_link_name <- function(submodel){
@@ -122,6 +124,12 @@ setMethod("summary", "ubmsFit", function(object, submodel, ...){
     random <- as.data.frame(random$summary)
     rownames(random) <- sigma_names(sm)
     out <- rbind(out, random)
+  }
+  if(has_spatial(sm)){
+    tau <- rstan::summary(object@stanfit, "tau")
+    tau <- as.data.frame(tau$summary)
+    rownames(tau) <- "RSR [tau]"
+    out <- rbind(out, tau)
   }
   out
 })
@@ -214,3 +222,66 @@ setMethod("traceplot", "ubmsFit", function(object, ...){
   rstan::traceplot(object@stanfit, ...)
 })
 
+#' Get Model Runtime
+#'
+#' Get warmup and sampling time from a \code{ubmsFit} object
+#'
+#' @param object A \code{ubmsFit} object
+#' @param ... Arguments passed to \code{rstan::get_elapsed_time}
+#'
+#' @return A matrix with one row per chain and two columns, containing
+#'  the warmup time and sampling time, respectively, in seconds
+#'
+#' @importFrom rstan get_elapsed_time
+#' @export
+setMethod("get_elapsed_time", "ubmsFit", function(object, ...){
+  rstan::get_elapsed_time(object@stanfit, ...)
+})
+
+# Get total model runtime to display in output of show() method
+get_runtime <- function(object){
+  units <- 'sec'
+  chain_time <- get_elapsed_time(object)
+  if(was_parallel(object)){
+    total_time <- max(apply(chain_time, 1, sum))
+  } else {
+    total_time <- sum(chain_time)
+  }
+  if(total_time > 100){
+    units <- 'min'
+    total_time <- total_time / 60
+  }
+  if(total_time > 100){
+    units <- 'hr'
+    total_time <- total_time / 60
+  }
+  paste(sprintf("%.3f", round(total_time, 3)), units)
+}
+
+# Check if chains were run in parallel
+was_parallel <- function(object){
+  if(!is.null(object@call$cores) && object@call$cores > 1) return(TRUE)
+  if(getOption("mc.cores", 1L) > 1) return(TRUE)
+  FALSE
+}
+
+#' Get Stan Code From Model
+#'
+#' Get the Stan code used to run a model as a character string
+#'
+#' @param object A \code{ubmsFit} object
+#' @param ... Arguments passed to \code{rstan::get_stancode}
+#'
+#' @return A character string with the model code
+#'
+#' @details Pass the result of \code{get_stancode} to \code{cat} to get the
+#'  code in a more readable format. Note that the output in most cases
+#'  is Stan code that can be used to fit several types of models, and not
+#'  all Stan code will be used in all models.
+#'
+#' @importFrom rstan get_stancode
+#'
+#' @export
+setMethod("get_stancode", "ubmsFit", function(object, ...){
+  rstan::get_stancode(object@stanfit, ...)
+})

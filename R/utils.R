@@ -30,6 +30,11 @@ plot_theme <- function(){
     )
 }
 
-between <- function(x, lower, upper){
-  x >= lower & x <= upper
+# Remove offset term from a formula
+remove_offset <- function(form){
+  char <- paste(deparse(form), collapse="")
+  char <- gsub(" ", "", char)
+  out <- gsub("\\+?offset\\((.*?)\\)", "", char)
+  if(out == "~") out <- "~1"
+  as.formula(out)
 }

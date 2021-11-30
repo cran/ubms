@@ -42,9 +42,8 @@ head(umf)
 
 ## ---- eval=FALSE--------------------------------------------------------------
 #  library(ubms)
-#  options(mc.cores=3)
 #  
-#  (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300))
+#  (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3))
 
 ## ---- echo=FALSE--------------------------------------------------------------
 library(ubms)
@@ -123,8 +122,8 @@ hist(prop0, col='gray')
 abline(v=actual_prop0, col='red', lwd=2)
 
 ## -----------------------------------------------------------------------------
-plot_marginal(fit_top, "state")
-plot_marginal(fit_top, "det")
+plot_effects(fit_top, "state")
+plot_effects(fit_top, "det")
 
 ## -----------------------------------------------------------------------------
 head(predict(fit_top, submodel="state"))
@@ -143,7 +142,7 @@ group2 <- rowMeans(zpost[,51:100], na.rm=TRUE)
 
 plot_dat <- rbind(data.frame(group="group1", occ=mean(group1),
                              lower=quantile(group1, 0.025),
-                             upper=quantile(group2, 0.975)),
+                             upper=quantile(group1, 0.975)),
                   data.frame(group="group2", occ=mean(group2),
                              lower=quantile(group2, 0.025),
                              upper=quantile(group2, 0.975)))

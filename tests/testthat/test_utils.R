@@ -1,8 +1,6 @@
 context("Utility functions")
 
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Setup umf
 set.seed(123)
@@ -46,4 +44,13 @@ test_that("Theme function produces ggplot theme",{
   theme_object <- plot_theme()
   expect_is(theme_object, "theme")
   expect_is(theme_object, "gg")
+})
+
+test_that("remove_offset removes offset term from formula", {
+  expect_equal(remove_offset(~x1 + offset(test)), ~x1)
+  expect_equal(remove_offset(~x1), ~x1)
+  expect_equal(remove_offset(~x1 + offset(test) + x3), ~x1 + x3)
+  expect_equal(remove_offset(~x1 + offset(test) + x3 + (1|test2)),
+               ~x1 + x3 + (1|test2))
+  expect_equal(remove_offset(~offset(test)), ~1)
 })

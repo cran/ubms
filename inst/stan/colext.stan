@@ -1,5 +1,7 @@
 functions{
 
+#include /include/functions_priors.stan
+
 //can shortcut here I think
 vector get_pY(int[] y, vector logit_p, int nd){
   vector[2] out;
@@ -84,6 +86,8 @@ int n_random_col[has_random_col ? n_group_vars_col : 1];
 int n_random_ext[has_random_ext ? n_group_vars_ext: 1];
 matrix[M*(T-1), n_fixed_col] X_col;
 matrix[M*(T-1), n_fixed_ext] X_ext;
+vector[M*(T-1)] offset_col;
+vector[M*(T-1)] offset_ext;
 
 int Zdim_col[5];
 vector[Zdim_col[3]] Zw_col;
@@ -95,17 +99,26 @@ vector[Zdim_ext[3]] Zw_ext;
 int Zv_ext[Zdim_ext[4]];
 int Zu_ext[Zdim_ext[5]];
 
+int prior_dist_col[3];
+int prior_dist_ext[3];
+matrix[3, (n_fixed_col+1)] prior_pars_col;
+matrix[3, (n_fixed_ext+1)] prior_pars_ext;
 }
 
 transformed data{
 
 int no_detects[M, T];
+int include_scale;
+int include_shape;
+
 for (m in 1:M){
   for (t in 1:T){
     no_detects[m, t] = 1 - Kmin[m, t];
   }
 }
 
+include_scale = 0;
+include_shape = 0;
 }
 
 parameters{
@@ -132,7 +145,7 @@ vector[R] logit_p;
 vector[M] log_lik;
 
 //psi
-logit_psi = X_state * beta_state;
+logit_psi = X_state * beta_state + offset_state;
 if(has_random_state){
   logit_psi = logit_psi +
               csr_matrix_times_vector(Zdim_state[1], Zdim_state[2], Zw_state,
@@ -145,14 +158,14 @@ for (i in 1:M){
 }
 
 //phi
-logit_col = X_col * beta_col;
+logit_col = X_col * beta_col + offset_col;
 if(has_random_col){
   logit_col = logit_col +
               csr_matrix_times_vector(Zdim_col[1], Zdim_col[2], Zw_col,
                                       Zv_col, Zu_col, b_col);
 }
 
-logit_ext = X_ext * beta_ext;
+logit_ext = X_ext * beta_ext + offset_ext;
 if(has_random_ext){
   logit_ext = logit_ext +
               csr_matrix_times_vector(Zdim_ext[1], Zdim_ext[2], Zw_ext,
@@ -167,7 +180,7 @@ for (i in 1:(M*(T-1))){
 }
 
 //det
-logit_p = X_det * beta_det;
+logit_p = X_det * beta_det + offset_det;
 if(has_random_det){
   logit_p = logit_p +
             csr_matrix_times_vector(Zdim_det[1], Zdim_det[2], Zw_det,
@@ -181,27 +194,17 @@ log_lik = get_loglik_colext(y, M, Tsamp, J, si, psi_raw, phi_raw,
 
 model{
 
-#include /include/rand_priors_single_season.stan
+#include /include/priors_single_season.stan
 
-if(has_random_col){
-  for (i in 1:n_group_vars_col){
-    b_col[idx:(n_random_col[i]+idx-1)] ~ normal(0, sigma_col[i]);
-    idx += n_random_col[i];
-  }
-}
+target += lp_priors(beta_col, prior_dist_col, prior_pars_col);
+target += lp_priors(beta_ext, prior_dist_ext, prior_pars_ext);
 
-idx = 1;
-if(has_random_ext){
-  for (i in 1:n_group_vars_ext){
-    b_ext[idx:(n_random_ext[i]+idx-1)] ~ normal(0, sigma_ext[i]);
-    idx += n_random_ext[i];
-  }
-}
-
-
-#include /include/fixed_priors_single_season.stan
-beta_col ~ normal(0, 2.5);
-beta_ext ~ normal(0, 2.5);
+target += lp_random_prior(has_random_col, n_group_vars_col, b_col,
+                          n_random_col, sigma_col, prior_dist_col[3],
+                          prior_pars_col);
+target += lp_random_prior(has_random_ext, n_group_vars_ext, b_ext,
+                          n_random_ext, sigma_ext, prior_dist_ext[3],
+                          prior_pars_ext);
 
 target += sum(log_lik);
 

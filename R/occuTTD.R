@@ -19,6 +19,17 @@
 #' @param linkPsi Link function for the occupancy model. Only option is
 #'  \code{"logit"} for now, in the future \code{"cloglog"}
 #'  will be supported for the complimentary log-log link.
+#' @param prior_intercept_state Prior distribution for the intercept of the
+#'  state (occupancy probability) model; see \code{?priors} for options
+#' @param prior_coef_state Prior distribution for the regression coefficients of
+#'  the state model
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  time-to-detection model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the time-to-detection model
+#' @param prior_intercept_shape Prior distribution for the intercept of the
+#'  shape parameter (i.e., log(shape)) for Weibull TTD models
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -64,22 +75,46 @@
 #' @seealso \code{\link{occuTTD}}, \code{\link{unmarkedFrameOccuTTD}}
 #' @include fit.R
 #' @export
-stan_occuTTD <- function(psiformula=~1, gammaformula=~1, epsilonformula=~1,
-                         detformula=~1, data, ttdDist=c("exp", "weibull"),
-                         linkPsi=c("logit"), ...){
+stan_occuTTD <- function(psiformula=~1,
+                         gammaformula=~1,
+                         epsilonformula=~1,
+                         detformula=~1,
+                         data,
+                         ttdDist=c("exp", "weibull"),
+                         linkPsi=c("logit"),
+                         prior_intercept_state = logistic(0, 1),
+                         prior_coef_state = logistic(0, 1),
+                         prior_intercept_det = normal(0, 5),
+                         prior_coef_det = normal(0, 2.5),
+                         prior_intercept_shape = normal(0,2.5),
+                         prior_sigma = gamma(1, 1),
+                         ...){
 
   if(data@numPrimary > 1) stop("Dynamic models not yet supported", call.=FALSE)
   umf <- process_umf(data)
   ttdDist <- match.arg(ttdDist)
   linkPsi <- match.arg(linkPsi)
 
+  forms <- list(state=psiformula, det=detformula)
+  if(has_spatial(forms)){
+    split_umf <- extract_missing_sites(umf)
+    umf <- split_umf$umf
+    state <- ubmsSubmodelSpatial("Occupancy", "state", siteCovs(umf), psiformula,
+                                 "plogis", prior_intercept_state, prior_coef_state,
+                                 prior_sigma,
+                                 split_umf$sites_augment, split_umf$data_aug)
+  } else {
+    state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis",
+                          prior_intercept_state, prior_coef_state, prior_sigma)
+  }
+
   response <- ubmsResponseOccuTTD(umf, ttdDist)
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), detformula, "exp")
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), detformula, "exp",
+                      prior_intercept_det, prior_coef_det, prior_sigma)
 
   shape <- placeholderSubmodel("shape")
   if(ttdDist=="weibull"){
-    shape <- ubmsSubmodelScalar("Shape", "shape", "exp")
+    shape <- ubmsSubmodelScalar("Shape", "shape", "exp", prior_intercept_shape)
   }
 
   submodels <- ubmsSubmodelList(state, det, shape)

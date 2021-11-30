@@ -3,14 +3,16 @@
   model_code <- name_to_modelcode(name)
   y_data <- get_stan_data(response)
 
+  pars <- get_pars(submodels)
   submodels <- unname(submodels@submodels)
   types <- sapply(submodels, function(x) x@type)
   submodel_data <- lapply(submodels, get_stan_data)
   submodel_data <- do.call("c", submodel_data)
 
-  stan_data <- c(model_code, y_data, submodel_data)
+  # Change this later?
+  submodel_data <- add_placeholder_priors(submodel_data, types)
 
-  pars <- get_pars(submodels)
+  stan_data <- c(model_code, y_data, submodel_data)
 
   list(stan_data=stan_data, pars=pars)
 }
@@ -20,20 +22,40 @@ name_to_modelcode <- function(name){
                          distsamp={4}, multinomPois={5}, occuTTD={6}))
 }
 
-get_pars <- function(submodels){
-
-  #Remove placeholder submodels - we don't want to save those parameters
-  submodels <- submodels[!sapply(submodels, is_placeholder)]
-
-  types <- sapply(submodels, function(x) x@type)
-  pars <- paste0("beta_", types)
-  for (i in submodels){
-    if(has_random(i)){
-      pars <- c(pars, b_par(i), sig_par(i))
-    }
+# Add prior info for submodel not being used in a given model
+# Placeholder info is still needed to satisfy the Stan data block
+add_placeholder_priors <- function(submodel_data, types){
+  # this is hacky
+  if(! "shape" %in% types){
+    submodel_data$prior_dist_shape <- c(0,0,0)
+    submodel_data$prior_pars_shape <- matrix(rep(0,6), nrow=3)
   }
-  c(pars, "log_lik")
+  if(! "scale" %in% types){
+    submodel_data$prior_dist_scale <- c(0,0,0)
+    submodel_data$prior_pars_scale <- matrix(rep(0,6), nrow=3)
+  }
+  submodel_data
 }
+
+setGeneric("get_pars", function(object, ...) standardGeneric("get_pars"))
+
+setMethod("get_pars", "ubmsSubmodelList", function(object, ...){
+  #Remove placeholder submodels - we don't want to save those parameters
+  submodels <- object@submodels
+  submodels <- submodels[!sapply(submodels, is_placeholder)]
+  submodels <- unname(submodels)
+  out <- unlist(lapply(submodels, get_pars))
+  c(out, "log_lik")
+})
+
+setMethod("get_pars", "ubmsSubmodel", function(object, ...){
+  out <- paste0("beta_", object@type)
+  if(has_random(object)){
+    out <- c(out, b_par(object), sig_par(object))
+  }
+  out
+})
+
 
 setGeneric("get_stan_data", function(object, ...){
              standardGeneric("get_stan_data")})
@@ -71,7 +93,9 @@ setMethod("get_auxiliary_data", "ubmsResponse", function(object, ...){
 })
 
 setMethod("get_stan_data", "ubmsSubmodelScalar", function(object, ...){
-  list()
+  out <- process_priors(object)
+  names(out) <- paste0(names(out), "_", object@type)
+  out
 })
 
 #' @include submodel.R
@@ -80,10 +104,12 @@ setMethod("get_stan_data", "ubmsSubmodel", function(object, ...){
   has_rand <- has_random(object)
   n_random <- get_nrandom(object@formula, object@data)
   Zinfo <- get_sparse_Z(Z_matrix(object, na.rm=TRUE))
-  X <- model.matrix(object, na.rm=TRUE)
-  out <- list(X=X, n_obs=nrow(X), n_fixed=ncol(X), n_group_vars=n_group_vars,
-              has_random=has_rand, n_random=n_random)
-  out <- c(out, Zinfo)
+  X <- model.matrix(object, na.rm=TRUE, warn=TRUE)
+  priors <- process_priors(object)
+  off <- model_offset(object, na.rm=TRUE)
+  out <- list(X=X, offset=off, n_obs=nrow(X), n_fixed=ncol(X),
+              n_group_vars=n_group_vars, has_random=has_rand, n_random=n_random)
+  out <- c(out, Zinfo, priors)
   names(out) <- paste0(names(out), "_", object@type)
   out
 })
@@ -105,6 +131,7 @@ get_group_vars <- function(formula){
 }
 
 get_nrandom <- function(formula, data){
+  check_formula(formula, data)
   rand <- lme4::findbars(formula)
   if(length(rand)==0) return(as.array(0))
 
@@ -117,7 +144,10 @@ get_nrandom <- function(formula, data){
 
 split_formula <- function(formula){
   if(length(formula) != 3) stop("Double right-hand side formula required")
-  p1 <- as.formula(formula[[2]])
-  p2 <- as.formula(paste0(formula[[1]], deparse(formula[[3]])))
-  list(p1, p2)
+  char <- lapply(formula, function(x){
+            paste(deparse(x), collapse="")
+          })
+  p1 <- as.formula(char[[2]])
+  p2 <- as.formula(paste("~", char[[3]]))
+  list(det=p1, state=p2)
 }

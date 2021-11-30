@@ -54,7 +54,7 @@ Second, `ubms` generates posterior distributions for model parameters, including
 These can be useful for post-hoc analyses and diagnostics.
 Finally, fitting models with Stan gives you access to the large ecosystem of Stan-related tools, such as [LOO](https://cran.r-project.org/package=loo) (leave-one-out-cross validation; [@Vehtari_2017]).
 
-Another alternative to `ubms` would be to fit models in an existing modeling language such as BUGS, [JAGS](http://mcmc-jags.sourceforge.net/), or directly in Stan.
+Another alternative to `ubms` would be to fit models in an existing modeling language such as BUGS, [JAGS](https://mcmc-jags.sourceforge.io/), or directly in Stan.
 `ubms` abstracts away the complex process of defining and writing custom models in these languages which need to be updated each time you make changes to your model.
 It also provides many useful helper functions (e.g. `predict`) which would otherwise require custom code.
 Finally, because of Stan's efficient sampler [@Hoffman_2014] and because the underlying likelihoods in `ubms` are marginalized, `ubms` will often fit models much faster than equivalent models in BUGS or JAGS [@Yackulic_2020].
@@ -155,13 +155,12 @@ Generally 4 chains of 2000 iterations each is recommended (of which 1000 per cha
 Thus, 300 iterations per chain is probably not enough, but to keep things running quickly it is sufficient for this vignette.
 Note that if you are more familiar with BUGS or JAGS, Stan generally requires a smaller number of iterations to reach convergence thanks to its default NUTS sampler [@Hoffman_2014].
 If you have a good multi-core CPU, you can run chains in parallel.
-Tell Stan how many cores you want to use by setting the `mc.cores` option.
+Tell Stan how many parallel cores you want to use by assigning a value to the `cores` argument.
 
 ```{r, eval=FALSE}
 library(ubms)
-options(mc.cores=3)
 
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3))
 ```
 
 ```{r, echo=FALSE}
@@ -372,11 +371,11 @@ abline(v=actual_prop0, col='red', lwd=2)
 
 Based on the 95% uncertainty intervals, both forest and elevation have a positive effect on occupancy probability (both intervals do not contain 0).
 Similarly, Julian date has a positive impact on detection probability.
-We can quickly visualize these marginal covariate effects with the `plot_marginal` function:
+We can quickly visualize these marginal covariate effects with the `plot_effects` function:
 
 ```{r}
-plot_marginal(fit_top, "state")
-plot_marginal(fit_top, "det")
+plot_effects(fit_top, "state")
+plot_effects(fit_top, "det")
 ```
 
 ### Predict parameter values
@@ -415,7 +414,7 @@ group2 <- rowMeans(zpost[,51:100], na.rm=TRUE)
 
 plot_dat <- rbind(data.frame(group="group1", occ=mean(group1),
                              lower=quantile(group1, 0.025),
-                             upper=quantile(group2, 0.975)),
+                             upper=quantile(group1, 0.975)),
                   data.frame(group="group2", occ=mean(group2),
                              lower=quantile(group2, 0.025),
                              upper=quantile(group2, 0.975)))

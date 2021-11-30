@@ -9,6 +9,23 @@
 #' @param epsilonformula Right-hand sided formula for extinction probability
 #' @param pformula Right-hand sided formula for detection probability
 #' @param data A \code{\link{unmarkedMultFrame}} object
+#' @param prior_intercept_psi Prior distribution for the intercept of the
+#'  psi (initial occupancy probability) model; see \code{?priors} for options
+#' @param prior_coef_psi Prior distribution for the regression coefficients of
+#'  the psi model
+#' @param prior_intercept_gamma Prior distribution on intercept for
+#'  colonization probability
+#' @param prior_coef_gamma Prior distribution on regression coefficients for
+#'  colonization probability
+#' @param prior_intercept_eps Prior distribution on intercept for
+#'  extinction probability
+#' @param prior_coef_eps Prior distribution on regression coefficients for
+#'  extinction probability
+#' @param prior_intercept_det Prior distribution for the intercept of the
+#'  detection probability model
+#' @param prior_coef_det Prior distribution for the regression coefficients of
+#'  the detection model
+#' @param prior_sigma Prior distribution on random effect standard deviations
 #' @param ... Arguments passed to the \code{\link{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
@@ -29,18 +46,38 @@
 #'
 #' @seealso \code{\link{colext}}, \code{\link{unmarkedMultFrame}}
 #' @export
-stan_colext <- function(psiformula = ~1, gammaformula = ~1, epsilonformula = ~1,
-                        pformula = ~1, data, ...){
+stan_colext <- function(psiformula = ~1,
+                        gammaformula = ~1,
+                        epsilonformula = ~1,
+                        pformula = ~1,
+                        data,
+                        prior_intercept_psi = logistic(0, 1),
+                        prior_coef_psi = logistic(0, 1),
+                        prior_intercept_gamma = logistic(0, 1),
+                        prior_coef_gamma = logistic(0, 1),
+                        prior_intercept_eps = logistic(0, 1),
+                        prior_coef_eps = logistic(0, 1),
+                        prior_intercept_det = logistic(0, 1),
+                        prior_coef_det = logistic(0, 1),
+                        prior_sigma = gamma(1, 1),
+                        ...){
 
   umf <- process_umf(data)
 
+  has_spatial(list(psi=psiformula, gamma=gammaformula, eps=epsilonformula,
+                   p=pformula), support=FALSE)
+
   response <- ubmsResponse(getY(umf), "binomial", "binomial", umf@numPrimary)
-  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis")
+  state <- ubmsSubmodel("Occupancy", "state", siteCovs(umf), psiformula, "plogis",
+                       prior_intercept_psi, prior_coef_psi, prior_sigma)
   col <- ubmsSubmodelTransition("Colonization", "col", yearlySiteCovs(umf),
-                      gammaformula, "plogis", T=umf@numPrimary)
+                      gammaformula, "plogis", T=umf@numPrimary,
+                      prior_intercept_gamma, prior_coef_gamma, prior_sigma)
   ext <- ubmsSubmodelTransition("Extinction", "ext", yearlySiteCovs(umf),
-                      epsilonformula, "plogis", T=umf@numPrimary)
-  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "plogis")
+                      epsilonformula, "plogis", T=umf@numPrimary,
+                      prior_intercept_eps, prior_coef_eps, prior_sigma)
+  det <- ubmsSubmodel("Detection", "det", obsCovs(umf), pformula, "plogis",
+                      prior_intercept_det, prior_coef_det, prior_sigma)
   submodels <- ubmsSubmodelList(state, col, ext, det)
 
   ubmsFit("colext", match.call(), data, response, submodels, ...)

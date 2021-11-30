@@ -12,6 +12,12 @@ stan_occuTTD(
   data,
   ttdDist = c("exp", "weibull"),
   linkPsi = c("logit"),
+  prior_intercept_state = logistic(0, 1),
+  prior_coef_state = logistic(0, 1),
+  prior_intercept_det = normal(0, 5),
+  prior_coef_det = normal(0, 2.5),
+  prior_intercept_shape = normal(0, 2.5),
+  prior_sigma = gamma(1, 1),
   ...
 )
 }
@@ -37,6 +43,23 @@ which adds an additional shape parameter \eqn{k}.}
 \item{linkPsi}{Link function for the occupancy model. Only option is
 \code{"logit"} for now, in the future \code{"cloglog"}
 will be supported for the complimentary log-log link.}
+
+\item{prior_intercept_state}{Prior distribution for the intercept of the
+state (occupancy probability) model; see \code{?priors} for options}
+
+\item{prior_coef_state}{Prior distribution for the regression coefficients of
+the state model}
+
+\item{prior_intercept_det}{Prior distribution for the intercept of the
+time-to-detection model}
+
+\item{prior_coef_det}{Prior distribution for the regression coefficients of
+the time-to-detection model}
+
+\item{prior_intercept_shape}{Prior distribution for the intercept of the
+shape parameter (i.e., log(shape)) for Weibull TTD models}
+
+\item{prior_sigma}{Prior distribution on random effect standard deviations}
 
 \item{...}{Arguments passed to the \code{\link{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}

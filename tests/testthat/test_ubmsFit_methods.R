@@ -1,8 +1,6 @@
 context("ubmsFit methods")
 
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Setup umf
 set.seed(123)
@@ -89,8 +87,8 @@ test_that("extract method works for ubmsFit",{
   expect_equal(dim(ex1[[1]]), c(40,2))
   ex_all <- extract(fit)
   expect_is(ex_all, "list")
-  expect_equal(names(ex_all), c("beta_state","beta_det","b_state",
-                                "sigma_state","log_lik","lp__"))
+  expect_equal(names(ex_all), c("beta_state","b_state","sigma_state",
+                                "beta_det","log_lik","lp__"))
 })
 
 test_that("traceplot method works for ubmsFit",{
@@ -116,4 +114,47 @@ test_that("predicting map works for ubmsFit",{
 test_that("getP method works for ubmsFit",{
   gp <- getP(fit)
   expect_equal(dim(gp), c(3,3,40))
+})
+
+test_that("get_elapsed_time method works for ubmsFit",{
+  et <- get_elapsed_time(fit)
+  expect_is(et, "matrix")
+  expect_equal(colnames(et), c("warmup","sample"))
+  expect_equal(rownames(et), c("chain:1","chain:2"))
+})
+
+test_that("get_runtime calculates runtime for display",{
+  fit2 <- fit
+  options(mc.cores=2)
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=49,sample=50)
+  rt <- get_runtime(fit2)
+  expect_equal(rt, "99.000 sec")
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=100,sample=50)
+  expect_equal(get_runtime(fit2), "2.500 min")
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10000,sample=50)
+  expect_equal(get_runtime(fit2), "2.792 hr")
+
+  # non-parallel
+  options(mc.cores=1)
+  attr(fit2@stanfit@sim$samples[[1]],"elapsed_time") <- c(warmup=10,sample=10)
+  attr(fit2@stanfit@sim$samples[[2]],"elapsed_time") <- c(warmup=10,sample=10)
+  expect_equal(get_runtime(fit2), "40.000 sec")
+})
+
+test_that("plot_effects creates gg or grid object",{
+  #Multiple covariates
+  pdf(NULL)
+  mp <- plot_posteriors(fit)
+  expect_is(mp, "gg")
+  mp2 <- plot_posteriors(fit, density=TRUE)
+  expect_is(mp2, "gg")
+  mp3 <- plot_posteriors(fit, "lp__")
+  expect_is(mp3, "gg")
+  expect_error(plot_posteriors(fit, pars="fake"))
+  dev.off()
+})
+
+test_that("get_stancode method works",{
+  out <- get_stancode(fit)
+  expect_is(out, "character")
 })

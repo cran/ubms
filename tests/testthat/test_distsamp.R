@@ -1,9 +1,6 @@
 context("stan_distsamp function and methods")
 
-skip_on_cran() #for now
-on_mac <- tolower(Sys.info()[["sysname"]]) == "darwin"
-on_cran <- !identical(Sys.getenv("NOT_CRAN"), "true")
-skip_if(on_mac & on_cran, "On CRAN mac")
+skip_on_cran()
 
 #Line transect fits
 data(linetran)
@@ -79,6 +76,8 @@ test_that("stan_distsamp output structure is correct",{
   expect_true(all(sapply(point_mods, function(x) class(x)[1])=="ubmsFitDistsamp"))
   expect_equal(sapply(point_mods, function(x) x@response@y_dist),
               c("halfnorm", "exp", "hazard"))
+  expect_is(fit_pt_haz['scale'], 'ubmsSubmodelScalar')
+  expect_is(fit_line_haz['scale'], 'ubmsSubmodelScalar')
 })
 
 test_that("stan_distsamp produces accurate results",{
@@ -91,28 +90,28 @@ test_that("stan_distsamp produces accurate results",{
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big,
                                              chains=2, iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ltUMF_big)
-  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.01)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ltUMF_big, keyfun="exp")
-  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.01)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, output="abund",
                             chains=2, iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ltUMF_big, output="abund")
-  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.01)
 
   #Point
   set.seed(123)
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF, chains=2,
                                              iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ptUMF)
-  expect_equivalent(coef(stan_mod), coef(um_mod), tol=0.05)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.05)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ptUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
-  expect_equivalent(coef(stan_mod), c(4.97957, 2.063640), tol=0.05)
+  expect_RMSE(coef(stan_mod), c(4.9806, 2.0597), 0.05)
   #unmarked model fails here
 
   #Need hazard tests here at some point, maybe when I can speed it up
@@ -141,7 +140,7 @@ test_that("ubmsFitDistsamp predict method works",{
   pr <- predict(fit_line_hn, "state")
   expect_is(pr, "data.frame")
   expect_equal(dim(pr), c(12, 4))
-  expect_true(between(pr[1,1], 0, 3))
+  expect_between(pr[1,1], 0, 5)
   pr <- predict(fit_line_hn, "det")
   expect_equal(dim(pr), c(12,4))
   #expect_true(between(pr[1,1], 5, 20))
@@ -149,7 +148,7 @@ test_that("ubmsFitDistsamp predict method works",{
   nd <- data.frame(habitat=c("A","B"))
   pr <- predict(fit_line_hn, "state", newdata=nd)
   expect_equal(dim(pr), c(2,4))
-  expect_true(between(pr[1,1], 0, 3))
+  expect_between(pr[1,1], 0, 5)
 })
 
 test_that("ubmsFitDistsamp sim_z method works",{
@@ -158,7 +157,7 @@ test_that("ubmsFitDistsamp sim_z method works",{
   zz <- sim_z(fit_line_hn, samples, re.form=NULL)
   expect_is(zz, "matrix")
   expect_equal(dim(zz), c(length(samples), 12))
-  expect_true(between(mean(zz), 10, 20))
+  expect_between(mean(zz), 10, 20)
 
   set.seed(123)
   pz <- posterior_predict(fit_line_hn, "z", draws=3)
@@ -177,14 +176,14 @@ test_that("ubmsFitDistsamp sim_y method works",{
   yy <- sim_y(fit_line_hn, samples, re.form=NULL)
   expect_is(yy, "matrix")
   expect_equal(dim(yy), c(3, 48))
-  expect_true(between(mean(yy), 1.5, 3.5))
+  expect_between(mean(yy), 1, 4)
   set.seed(123)
   py <- posterior_predict(fit_line_hn, "y", draws=3)
   expect_equivalent(dim(yy), dim(py))
 
   #Test abundance model
   yabun <- sim_y(fit_line_abun, samples, re.form=NULL)
-  expect_true(between(mean(yy), 1.5, 3.5))
+  expect_between(mean(yy), 1, 4)
 
   ylist <- lapply(line_mods, function(x) sim_y(x, samples, re.form=NULL))
   expect_true(all(sapply(ylist, function(x) all(dim(x)==dim(py)))))
@@ -232,7 +231,7 @@ test_that("Fitted/residual methods work with ubmsFitDistsamp",{
   expect_is(rp, "gg")
   expect_is(rp2, "gg")
   expect_is(rp3, "gtable")
-  expect_is(mp, "gtable")
+  expect_is(mp, "gg")
 })
 
 test_that("sim_state works for ubmsFitDistsamp",{
@@ -297,4 +296,18 @@ test_that("ubmsResponseDistsamp methods work",{
   resp3@units_out <- "kmsq"
   expect_equal(mean(get_area_adjust(resp)), 16, tol=1e-3)
   expect_equal(mean(get_area_adjust(resp3)), 16e4, tol=1)
+})
+
+test_that("distsamp spatial works", {
+  skip_on_cran()
+  umf2 <- ltUMF
+  umf2@siteCovs$x <- runif(numSites(umf2), 0, 10)
+  umf2@siteCovs$y <- runif(numSites(umf2), 0, 10)
+  fit_spat <- suppressMessages(suppressWarnings(stan_distsamp(~1~habitat+RSR(x,y,1),
+                                umf2, chains=2, iter=100, refresh=0)))
+  expect_is(fit_spat@submodels@submodels$state, "ubmsSubmodelSpatial")
+  expect_equal(names(coef(fit_spat))[3], "state[RSR [tau]]")
+
+  ps <- plot_spatial(fit_spat)
+  expect_is(ps, "gg")
 })
