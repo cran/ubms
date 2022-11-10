@@ -95,7 +95,7 @@ test_that("stan_distsamp produces accurate results",{
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, keyfun="exp",
                                              chains=2, iter=200, refresh=0))
   um_mod <- distsamp(~1~1, ltUMF_big, keyfun="exp")
-  expect_RMSE(coef(stan_mod), coef(um_mod), 0.01)
+  expect_RMSE(coef(stan_mod), coef(um_mod), 0.02)
 
   stan_mod <- suppressWarnings(stan_distsamp(~1~1, ltUMF_big, output="abund",
                             chains=2, iter=200, refresh=0))
@@ -119,6 +119,13 @@ test_that("stan_distsamp produces accurate results",{
 
 test_that("stan_distsamp handles NA values",{
   expect_error(stan_distsamp(~1~1, ltUMF_na))
+})
+
+test_that("extract_log_lik method works",{
+  ll <- extract_log_lik(fit_pt_hn)
+  expect_is(ll, "matrix")
+  expect_equal(dim(ll), c(200/2 * 2, numSites(fit_pt_hn@data)))
+  expect_between(sum(ll), -39000, -38000)
 })
 
 test_that("ubmsFitDistsamp gof method works",{
@@ -310,4 +317,9 @@ test_that("distsamp spatial works", {
 
   ps <- plot_spatial(fit_spat)
   expect_is(ps, "gg")
+})
+
+test_that("kfold errors when used on a stan_distsamp model", {
+  expect_error(kfold(fit_line_hn),
+               "kfold method not yet supported for stan_distsamp models")
 })

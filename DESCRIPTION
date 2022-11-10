@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.1.0
-Date: 2021-11-29
+Version: 1.2.2
+Date: 2022-11-10
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -23,7 +23,7 @@ License: GPL (>= 3)
 URL: https://kenkellner.com/ubms/
 BugReports: https://github.com/kenkellner/ubms/issues
 Encoding: UTF-8
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Biarch: true
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppArmadillo (>=
         0.9.300.2.0), RcppEigen (>= 0.3.3.3.0), rstan (>= 2.18.1),
@@ -32,14 +32,14 @@ SystemRequirements: GNU make
 Collate: 'RcppExports.R' 'submodel.R' 'response.R' 'inputs.R' 'fit.R'
         'posterior_predict.R' 'posterior_linpred.R' 'fitted.R' 'gof.R'
         'occu.R' 'colext.R' 'missing.R' 'distsamp.R' 'fitlist.R'
-        'occuRN.R' 'mb_chisq.R' 'multinomPois.R' 'occuTTD.R' 'pcount.R'
-        'plot_effects.R' 'plot_posteriors.R' 'predict.R' 'priors.R'
-        'ranef.R' 'residuals.R' 'spatial.R' 'stanmodels.R'
-        'test-helpers.R' 'ubms-package.R' 'ubmsFit-methods.R'
-        'ubmsFitList-methods.R' 'umf.R' 'utils.R'
+        'kfold.R' 'occuTTD.R' 'multinomPois.R' 'occuRN.R' 'pcount.R'
+        'loglik.R' 'mb_chisq.R' 'plot_effects.R' 'plot_posteriors.R'
+        'predict.R' 'priors.R' 'ranef.R' 'residuals.R' 'spatial.R'
+        'stanmodels.R' 'test-helpers.R' 'ubms-package.R'
+        'ubmsFit-methods.R' 'ubmsFitList-methods.R' 'umf.R' 'utils.R'
 NeedsCompilation: yes
-Packaged: 2021-11-29 15:42:56 UTC; ken
+Packaged: 2022-11-10 15:26:21 UTC; ken
 Author: Ken Kellner [cre, aut]
 Maintainer: Ken Kellner <contact@kenkellner.com>
 Repository: CRAN
-Date/Publication: 2021-11-30 08:20:02 UTC
+Date/Publication: 2022-11-10 17:20:02 UTC

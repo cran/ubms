@@ -1,3 +1,21 @@
+# ubms v1.2.2
+
+* Fix broken URLs in vignettes
+* New kfold function
+* Add ability to not save log likelihoods in posterior
+* Add new Laplace prior (thanks Justin Cally)
+* Better handling of factors with levels that don't appear in data
+* Fix CRAN clang warnings
+* Misc. bugfixes
+
+# ubms v1.1.0
+
+* Support for restricted spatial regression (RSR)
+* Add vignette for RSR
+* Update default priors and allow setting custom priors
+* Support for offsets
+* New utility functions and bugfixes
+
 # ubms v1.0.2
 
 * Make default priors less informative

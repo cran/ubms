@@ -225,7 +225,7 @@ This will take Stan a few minutes with default MCMC settings.
 
 
 ```r
-fit_ubms <- stan_occu(form, umf, chains=3, cores=3)
+fit_ubms <- stan_occu(form, umf, chains=3, cores=3, seed=123)
 ```
 
 
@@ -246,25 +246,26 @@ fit_ubms
 ## 
 ## Call:
 ## stan_occu(formula = form, data = umf, chains = 3, refresh = 0, 
-##     cores = 3)
+##     cores = 3, seed = 123)
 ## 
 ## Occupancy (logit-scale):
-##             Estimate     SD    2.5%  97.5% n_eff Rhat
-## (Intercept)   -1.038 0.2286 -1.5060 -0.601  1269 1.00
-## habCov12      -0.212 0.3231 -0.8503  0.427  2404 1.00
-## habCov13      -0.258 0.3273 -0.9035  0.374  2058 1.00
-## habCov2        1.080 0.1708  0.7683  1.439  1429 1.00
-## RSR [tau]      0.155 0.0589  0.0704  0.293   253 1.01
+##             Estimate    SD    2.5%  97.5% n_eff  Rhat
+## (Intercept)   -1.068 0.231 -1.5520 -0.646   947 1.001
+## habCov12      -0.216 0.320 -0.8350  0.405  2381 1.000
+## habCov13      -0.264 0.321 -0.9002  0.362  2244 0.999
+## habCov2        1.104 0.181  0.7612  1.493  1035 1.000
+## RSR [tau]      0.140 0.057  0.0599  0.274   205 1.015
 ## 
 ## Detection (logit-scale):
 ##             Estimate    SD   2.5% 97.5% n_eff Rhat
-## (Intercept)    1.727 0.370  1.004 2.481  1610    1
-## detCov1        0.113 0.210 -0.310 0.533  4962    1
-## detCov21       1.185 0.555  0.122 2.320  2189    1
-## detCov22       1.372 0.557  0.356 2.496  2455    1
-## detCov23      -0.242 0.484 -1.197 0.719  2013    1
+## (Intercept)    1.712 0.355  1.061 2.413  1783    1
+## detCov1        0.115 0.210 -0.288 0.528  4778    1
+## detCov21       1.188 0.538  0.152 2.285  2360    1
+## detCov22       1.385 0.552  0.347 2.508  2439    1
+## detCov23      -0.219 0.476 -1.156 0.731  2230    1
 ## 
-## LOOIC: 668.02
+## LOOIC: 668.955
+## Runtime: 2.828 min
 ```
 
 The precision term (tau, $\tau$) associated with the spatial random effect is the final row of the occupancy model estimates.
@@ -291,12 +292,12 @@ head(psi)
 
 ```
 ##   Predicted         SD       2.5%     97.5%
-## 1 0.1441475 0.04413909 0.07266996 0.2439409
-## 2 0.2360008 0.08352206 0.10501601 0.4271224
-## 3 0.3578073 0.11260628 0.17170766 0.6029410
-## 4 0.4527547 0.12485601 0.23020833 0.7192525
-## 5 0.4522272 0.11820159 0.23762047 0.6955722
-## 6 0.3847294 0.11279317 0.18753530 0.6292943
+## 1 0.1406819 0.04367637 0.06798461 0.2395582
+## 2 0.2353870 0.08364601 0.10436390 0.4261004
+## 3 0.3613298 0.11519917 0.16951184 0.6225812
+## 4 0.4581433 0.12669375 0.23324167 0.7257790
+## 5 0.4564998 0.12228635 0.22897164 0.7091163
+## 6 0.3849536 0.11732801 0.17920393 0.6357226
 ```
 
 ## Plotting
@@ -328,7 +329,8 @@ It is important to confirm that the spatial random effect is actually improving 
 To check this, first fit a similar model without the RSR:
 
 ```r
-fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf, chains=3)
+fit_nonspatial <- stan_occu(~detCov1 + detCov2 ~habCov1 + habCov2, umf,
+                            chains=3, seed=123)
 ```
 
 
@@ -349,8 +351,8 @@ round(modSel(fl),2)
 
 ```
 ##                   elpd nparam elpd_diff se_diff weight
-## fit_ubms       -334.01  44.80      0.00     0.0      1
-## fit_nonspatial -380.54   8.43    -46.53     8.1      0
+## fit_ubms       -334.48  47.09       0.0    0.00      1
+## fit_nonspatial -380.68   8.57     -46.2    8.32      0
 ```
 
 A measure of predictive accuracy (`elpd`) is shown for each model, and the model with the highest predictive accuracy is listed first.
@@ -368,6 +370,7 @@ The code for fitting the model in `stocc` is taken directly from the package dem
 
 
 ```r
+set.seed(123)
 names <- list(
   visit=list(site="site",obs="obs"),
   site=list(site="site", coords=c("x","y"))
@@ -376,7 +379,7 @@ names <- list(
 fit_stocc <- spatial.occupancy(
   detection.model = ~ detCov1 + detCov2,
   occupancy.model = ~ habCov1 + habCov2,
-  spatial.model = list(model="rsr", threshold=1, moran.cut=0.1*nrow(habData)),
+  spatial.model = list(model="rsr", threshold=1.01, moran.cut=0.1*nrow(habData)),
   so.data = make.so.data(visitData, habData, names),
   prior = list(a.tau=0.5, b.tau=0.00005, Q.b=0.1, Q.g=0.1),
   control = list(burnin=1000/5, iter=4000/5, thin=5)

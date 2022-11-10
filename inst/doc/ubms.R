@@ -43,11 +43,11 @@ head(umf)
 ## ---- eval=FALSE--------------------------------------------------------------
 #  library(ubms)
 #  
-#  (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3))
+#  (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, cores=3, seed=123))
 
 ## ---- echo=FALSE--------------------------------------------------------------
 library(ubms)
-(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0))
+(fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=300, refresh=0, seed=123))
 
 ## -----------------------------------------------------------------------------
 cbind(unmarked=coef(fit_unm), stan=coef(fit_stan))
@@ -69,14 +69,14 @@ lines(density(occ_intercept), col='red', lwd=2)
 #  fit_null <- fit_stan
 #  
 #  fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-#                          chains=3, iter=300)
+#                          chains=3, iter=300, seed=123)
 
 ## ---- echo=FALSE--------------------------------------------------------------
 fit_null <- fit_stan
 
 ## ---- warning=TRUE, echo=FALSE------------------------------------------------
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
-                        chains=3, iter=300, refresh=0)
+                        chains=3, iter=300, refresh=0, seed=123)
 
 ## -----------------------------------------------------------------------------
 mods <- fitList(fit_null, fit_global)

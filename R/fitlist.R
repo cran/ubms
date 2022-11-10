@@ -8,11 +8,12 @@ setGeneric("fitList", function(...){
 #'
 #' Create a list of ubmsFit models
 #'
-#' @param ... \code{ubmsFit} model objects, preferably named
+#' @param ... \code{ubmsFit} model objects, preferably named, or a list
+#'  of such models
 #'
 #' @return An object of class \code{ubmsFitList} containing the list of models
 #'
-#' @aliases fitList
+#' @aliases fitList fitList,list-method
 #' @export
 setMethod("fitList", "ubmsFit", function(...){
   mods <- list(...)
@@ -21,10 +22,15 @@ setMethod("fitList", "ubmsFit", function(...){
   mod_names[mod_names==""] <- NA
   obj_names=sapply(substitute(list(...))[-1], deparse)
   mod_names[is.na(mod_names)] <- obj_names[is.na(mod_names)]
+  names(mods) <- mod_names
+  fitList(mods)
+})
 
-  out <- new("ubmsFitList", models=mods)
-  names(out@models) <- mod_names
-  out
+setMethod("fitList", "list", function(...){
+  mods <- list(...)[[1]]
+  if(!inherits(mods[[1]],"ubmsFit", )) return(unmarked::fitList(fits=mods))
+  if(is.null(names(mods))) names(mods) <- paste0("mod", 1:length(mods))
+  new("ubmsFitList", models=mods)
 })
 
 #' Model Selection For a List of ubmsFit Models
@@ -43,7 +49,8 @@ setMethod("fitList", "ubmsFit", function(...){
 #' @importFrom unmarked modSel
 #' @export
 setMethod("modSel", "ubmsFitList", function(object, ...){
-  loos <- lapply(object@models, loo, ...)
+  #loos <- lapply(object@models, loo, ...)
+  loos <- lapply(object@models, function(x) x@loo)
   elpd <- sapply(loos, function(x) x$estimates[1])
   p_loo <- sapply(loos, function(x) x$estimates[2])
   compare <- loo::loo_compare(loos)[names(elpd),]
