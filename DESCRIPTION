@@ -1,15 +1,15 @@
 Package: ubms
-Version: 1.2.2
-Date: 2022-11-10
+Version: 1.2.3
+Date: 2023-05-17
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
 Depends: R (>= 3.4.0), unmarked
-Imports: ggplot2 (>= 2.0.0), gridExtra, lme4, loo, Matrix, methods,
-        pbapply, Rcpp (>= 0.12.0), RSpectra, rstan (>= 2.18.1),
-        rstantools (>= 2.0.0), stats
-Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, rlang,
-        roxygen2, testthat
+Imports: ggplot2 (>= 2.0.0), gridExtra, lme4, loo, Matrix (>= 1.5-0),
+        methods, pbapply, Rcpp (>= 0.12.0), rlang, RSpectra, rstan (>=
+        2.18.1), rstantools (>= 2.0.0), stats
+Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2,
+        testthat
 VignetteBuilder: knitr
 Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     via the 'rstan' package, the R interface to the 'Stan' C++ library.
@@ -23,7 +23,7 @@ License: GPL (>= 3)
 URL: https://kenkellner.com/ubms/
 BugReports: https://github.com/kenkellner/ubms/issues
 Encoding: UTF-8
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.2
 Biarch: true
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppArmadillo (>=
         0.9.300.2.0), RcppEigen (>= 0.3.3.3.0), rstan (>= 2.18.1),
@@ -38,8 +38,8 @@ Collate: 'RcppExports.R' 'submodel.R' 'response.R' 'inputs.R' 'fit.R'
         'stanmodels.R' 'test-helpers.R' 'ubms-package.R'
         'ubmsFit-methods.R' 'ubmsFitList-methods.R' 'umf.R' 'utils.R'
 NeedsCompilation: yes
-Packaged: 2022-11-10 15:26:21 UTC; ken
+Packaged: 2023-05-17 15:03:19 UTC; ken
 Author: Ken Kellner [cre, aut]
 Maintainer: Ken Kellner <contact@kenkellner.com>
 Repository: CRAN
-Date/Publication: 2022-11-10 17:20:02 UTC
+Date/Publication: 2023-05-17 15:50:02 UTC
