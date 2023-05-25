@@ -1,6 +1,6 @@
-7c955a78c71c6a0c651dcbd9eb5eeba3 *DESCRIPTION
+adec2c839f61693553ab84924ff1c5aa *DESCRIPTION
 cb301dd43d5f54fb2c4a86f2300f25d6 *NAMESPACE
-5cb2762dd0999048f8c95101a8f8052c *NEWS.md
+228106d89c858f69d7fcf84a79710cd3 *NEWS.md
 3e5874cb34d9e6fc6d2d66a5c74b3c63 *R/RcppExports.R
 86c26373fbbfafc3b1f25689cfb79ae3 *R/colext.R
 80bf1ec8fd168e78fc34580d3259eb68 *R/distsamp.R
@@ -48,7 +48,7 @@ a32fa2753cae95f63dbd5b6de8df3bb3 *inst/doc/JAGS-comparison.html
 028894c5c94092dbfee71cbcb2a00e09 *inst/doc/spatial-models.html
 0d0f736d61cfb10200e593b11a9ef171 *inst/doc/ubms.R
 ac7e3090e99110dfdd7905690efc2adc *inst/doc/ubms.Rmd
-c8d953af029ac7d60578446d4ea7e6ac *inst/doc/ubms.html
+29bcc5d16f48bf2e39ffaf7e3387fd7d *inst/doc/ubms.html
 855c064dbf8deaff96c8dc8a87169109 *inst/include/stan_meta_header.hpp
 bb55246724930f28e22c143a32695be8 *inst/stan/colext.stan
 cc5821f5a2183a0e8ac7e9f5e2226e9c *inst/stan/include/call_loglik_functions.stan
@@ -109,8 +109,8 @@ bbd196fcbed05e135733125c8df1cedf *man/stan_pcount.Rd
 51bae526dfbace6b9d22ed190ce88e33 *man/ubms.Rd
 bdfec96f9d4358687b31c2995e0904c3 *man/ubmsFitList-extractors.Rd
 ce5cbff18daf3d3407740700474a98df *man/waic-ubmsFit-method.Rd
-cd33d82c8b494b75c304da8fd152b6aa *src/Makevars
-b41a99aacc4ba3409f908baa3fc2236d *src/Makevars.win
+f4aebbd9662a7d9018a6ce79dd0b69b2 *src/Makevars
+1e0e00a5166faf25b1165bc23625587b *src/Makevars.win
 a44f39675180a6dedb838275e39b44a6 *src/exp_counts_occu.cpp
 438ad44188688a658923c8dd24bc25b5 *src/loglik.cpp
 269568075f5d5ed667a92840c4e8d25a *src/simz.cpp
@@ -135,7 +135,7 @@ ebfbffe092923987060a759e13799b54 *tests/testthat/test_priors.R
 a064b81ee3c1467cc41b77fe6b8cc744 *tests/testthat/test_response.R
 0b334ba2d5f8e26d61b267f89007aa3f *tests/testthat/test_spatial.R
 c9893f517e724f27a836d13c053fc92e *tests/testthat/test_submodel.R
-995715a987d361dbe34f095e0a41a9e5 *tests/testthat/test_ubmsFit_methods.R
+4370e6399323984b73b469d33ed5f2c3 *tests/testthat/test_ubmsFit_methods.R
 2c152a6a3752ac3047d5a42f8e9d238f *tests/testthat/test_umf.R
 f53cac10d47e78c61f0437176e26e226 *tests/testthat/test_utils.R
 6c654105a2e1725eaa3ee1c1af7a551c *vignettes/JAGS-comparison.Rmd
