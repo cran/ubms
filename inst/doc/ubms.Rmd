@@ -43,7 +43,7 @@ It provides a nearly identical interface to the popular `unmarked` package [@Fis
 Instead of using maximum likelihood to fit models (as with `unmarked`), 
 models are fit in a Bayesian framework using [Stan](https://mc-stan.org/) [@Carpenter_2017].
 It is generally expected that you are already familiar with `unmarked` when using `ubms`.
-You can download `ubms`, report issues, or help with development on [Github](https://github.com/kenkellner/ubms).
+You can download `ubms`, report issues, or help with development on [Github](https://github.com/biodiverse/ubms).
 
 ## Why should you use it?
 
@@ -195,7 +195,7 @@ To get the corresponding probabilities, you can use the `predict` function, whic
 
 For each parameter, the mean and standard deviation of the posterior distribution are given.
 Unlike `unmarked` output, there is no $Z$ or $p$-value.
-Instead, there is a 95% [uncertainty interval](https://statmodeling.stat.columbia.edu/2016/11/26/reminder-instead-confidence-interval-lets-say-uncertainty-interval/) provided.
+Instead, there is a 95% uncertainty interval provided.
 
 The final two columns in each summary table `n_eff` and `Rhat` are MCMC diagnostics.
 We will discuss their meaning later.

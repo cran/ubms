@@ -6,7 +6,7 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and abundance in that order
-#' @param data A \code{\link{unmarkedFrameOccu}} object
+#' @param data A \code{\link[unmarked]{unmarkedFrameOccu}} object
 #' @param K Integer upper index of integration for N-mixture. This should be
 #'  set high enough so that it does not affect the parameter estimates.
 #'  Note that computation time will increase with K.
@@ -22,7 +22,7 @@
 #' @param log_lik If \code{TRUE}, Stan will save pointwise log-likelihood values
 #'  in the output. This can greatly increase the size of the model. If
 #'  \code{FALSE}, the values are calculated post-hoc from the posteriors
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitOccuRN} object describing the model fit.
@@ -40,7 +40,7 @@
 #' @references Royle JA, Nichols JD. 2003. Estimating abundance from
 #'  repeated presence-absence data or point counts. Ecology 84: 777-790.
 #'
-#' @seealso \code{\link{occuRN}}, \code{\link{unmarkedFrameOccu}}
+#' @seealso \code{\link[unmarked]{occuRN}}, \code{\link[unmarked]{unmarkedFrameOccu}}
 #' @export
 stan_occuRN <- function(formula,
                         data,

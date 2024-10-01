@@ -6,7 +6,7 @@
 #'
 #' @param formula Double right-hand side formula describing covariates of
 #'  detection and occupancy in that order
-#' @param data A \code{\link{unmarkedFrameDS}} object
+#' @param data A \code{\link[unmarked]{unmarkedFrameDS}} object
 #' @param keyfun One of the following detection functions:
 #'  \code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
 #'  or \code{"hazard"} for hazard-rate (see warning below)
@@ -24,7 +24,7 @@
 #' @param prior_intercept_scale Prior distribution for the intercept of the
 #'  scale parameter (i.e., log(scale)) for Hazard-rate models
 #' @param prior_sigma Prior distribution on random effect standard deviations
-#' @param ... Arguments passed to the \code{\link{stan}} call, such as
+#' @param ... Arguments passed to the \code{\link[rstan]{stan}} call, such as
 #'  number of chains \code{chains} or iterations \code{iter}
 #'
 #' @return \code{ubmsFitDistsamp} object describing the model fit.
@@ -55,7 +55,7 @@
 #' @references Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
 #'  abundance effects in distance sampling. Ecology 85: 1591-1597.
 #'
-#' @seealso \code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
+#' @seealso \code{\link[unmarked]{distsamp}}, \code{\link[unmarked]{unmarkedFrameDS}}
 #' @export
 stan_distsamp <- function(formula,
                           data,
@@ -422,28 +422,27 @@ setMethod("hist", "ubmsFitDistsamp", function(x, draws=30, ...){
   samples <- get_samples(x, draws)
   hist_data <- get_hist_data(x)
   mean_line <- get_mean_line(x)
-  
-  xval <- sym("x"); val <- sym("val"); ind <- sym("ind"); dens <- sym("density")
-  out <- ggplot(hist_data, aes(x={{xval}})) +
-    geom_histogram(aes(y=after_stat({{dens}})),fill='transparent',
+ 
+  out <- ggplot(hist_data, aes(x=.data[["x"]])) +
+    geom_histogram(aes(y=after_stat(.data[["density"]])),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
 
   #Adjust the histogram height to match the density line
   bar_height <- ggplot2::ggplot_build(out)$data[[1]]$y[1]
   adj_factor <- max(mean_line$val, na.rm=TRUE) / bar_height
 
-  out <- ggplot(hist_data, aes(x={{xval}})) +
-    geom_histogram(aes(y=after_stat({{dens}})*adj_factor),fill='transparent',
+  out <- ggplot(hist_data, aes(x=.data[["x"]])) +
+    geom_histogram(aes(y=after_stat(.data[["density"]])*adj_factor),fill='transparent',
                    col='black',breaks=x@response@dist_breaks)
 
   if(draws > 0){
     sample_lines <- get_sample_lines(x, samples)
     out <- out +
-      geom_line(data=sample_lines, aes(x={{xval}}, y={{val}}, group={{ind}}),
+      geom_line(data=sample_lines, aes(x=.data[["x"]], y=.data[["val"]], group=.data[["ind"]]),
               alpha=0.3)
   }
   out +
-    geom_line(data=mean_line, aes(x={{xval}}, y={{val}}), col='red') +
+    geom_line(data=mean_line, aes(x=.data[["x"]], y=.data[["val"]]), col='red') +
     labs(x=paste0("Distance (", x@response@units_in,")"), y="Density") +
     theme_bw() +
     theme(panel.grid.major=element_blank(), panel.grid.minor=element_blank(),

@@ -22,7 +22,7 @@ stan_pcount(
 \item{formula}{Double right-hand side formula describing covariates of
 detection and abundance in that order}
 
-\item{data}{A \code{\link{unmarkedFramePCount}} object}
+\item{data}{A \code{\link[unmarked]{unmarkedFramePCount}} object}
 
 \item{K}{Integer upper index of integration for N-mixture. This should be
 set high enough so that it does not affect the parameter estimates.
@@ -48,7 +48,7 @@ the detection model}
 in the output. This can greatly increase the size of the model. If
 \code{FALSE}, the values are calculated post-hoc from the posteriors}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as
+\item{...}{Arguments passed to the \code{\link[rstan]{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{
@@ -73,5 +73,5 @@ Royle JA. 2004. N-mixture models for estimating populaiton size
  from spatially replicated counts. Biometrics 60: 105-108.
 }
 \seealso{
-\code{\link{pcount}}, \code{\link{unmarkedFramePCount}}
+\code{\link[unmarked]{pcount}}, \code{\link[unmarked]{unmarkedFramePCount}}
 }

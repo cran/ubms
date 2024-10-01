@@ -1,15 +1,14 @@
 Package: ubms
-Version: 1.2.6
-Date: 2023-09-11
+Version: 1.2.7
+Date: 2024-09-30
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
 Depends: R (>= 3.4.0), unmarked
-Imports: ggplot2 (>= 2.0.0), gridExtra, lme4, loo, Matrix (>= 1.5-0),
-        methods, pbapply, Rcpp (>= 0.12.0), rlang, RSpectra, rstan (>=
-        2.26.0), rstantools (>= 2.0.0), stats
-Suggests: covr, devtools, knitr, pkgdown, raster, rmarkdown, roxygen2,
-        testthat
+Imports: ggplot2 (>= 2.0.0), gridExtra, loo, Matrix (>= 1.5-0),
+        methods, pbapply, Rcpp (>= 0.12.0), reformulas, rlang,
+        RSpectra, rstan (>= 2.26.0), rstantools (>= 2.0.0), stats
+Suggests: knitr, raster, rmarkdown, terra, testthat
 VignetteBuilder: knitr
 Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     via the 'rstan' package, the R interface to the 'Stan' C++ library.
@@ -20,10 +19,10 @@ Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     Carpenter et al. (2017) <doi:10.18637/jss.v076.i01>;
     Fiske and Chandler (2011) <doi:10.18637/jss.v043.i10>.
 License: GPL (>= 3)
-URL: https://kenkellner.com/ubms/
-BugReports: https://github.com/kenkellner/ubms/issues
+URL: https://biodiverse.github.io/ubms/
+BugReports: https://github.com/biodiverse/ubms/issues
 Encoding: UTF-8
-RoxygenNote: 7.2.2
+RoxygenNote: 7.3.2
 Biarch: true
 LinkingTo: BH (>= 1.66.0), Rcpp (>= 0.12.0), RcppArmadillo (>=
         0.9.300.2.0), RcppEigen (>= 0.3.3.3.0), rstan (>= 2.26.0),
@@ -38,8 +37,8 @@ Collate: 'RcppExports.R' 'submodel.R' 'response.R' 'inputs.R' 'fit.R'
         'stanmodels.R' 'test-helpers.R' 'ubms-package.R'
         'ubmsFit-methods.R' 'ubmsFitList-methods.R' 'umf.R' 'utils.R'
 NeedsCompilation: yes
-Packaged: 2023-09-11 16:01:30 UTC; ken
+Packaged: 2024-09-30 20:21:35 UTC; ken
 Author: Ken Kellner [cre, aut]
 Maintainer: Ken Kellner <contact@kenkellner.com>
 Repository: CRAN
-Date/Publication: 2023-09-11 18:50:02 UTC
+Date/Publication: 2024-10-01 05:20:02 UTC

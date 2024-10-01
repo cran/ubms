@@ -1,4 +1,4 @@
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 knitr::knit_hooks$set(time_it = local({
   now <- NULL
   function(before, options) {
@@ -40,12 +40,12 @@ head(umf)
 ## -----------------------------------------------------------------------------
 (fit_unm <- occu(~1~1, data=umf))
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  library(ubms)
 #  
 #  (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, cores=3, seed=123))
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 library(ubms)
 (fit_stan <- stan_occu(~1~1, data=umf, chains=3, iter=500, refresh=0, seed=123))
 
@@ -65,16 +65,16 @@ occ_intercept <- extract(fit_stan, "beta_state[(Intercept)]")[[1]]
 hist(occ_intercept, freq=FALSE)
 lines(density(occ_intercept), col='red', lwd=2)
 
-## ---- eval=FALSE--------------------------------------------------------------
+## ----eval=FALSE---------------------------------------------------------------
 #  fit_null <- fit_stan
 #  
 #  fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
 #                          chains=3, iter=500, seed=123)
 
-## ---- echo=FALSE--------------------------------------------------------------
+## ----echo=FALSE---------------------------------------------------------------
 fit_null <- fit_stan
 
-## ---- warning=TRUE, echo=FALSE------------------------------------------------
+## ----warning=TRUE, echo=FALSE-------------------------------------------------
 fit_global <- stan_occu(~scale(date)~scale(forest)+scale(ele), data=umf,
                         chains=3, iter=500, refresh=0, seed=123)
 

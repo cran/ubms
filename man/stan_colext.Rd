@@ -33,7 +33,7 @@ occupancy at each site}
 
 \item{pformula}{Right-hand sided formula for detection probability}
 
-\item{data}{A \code{\link{unmarkedMultFrame}} object}
+\item{data}{A \code{\link[unmarked]{unmarkedMultFrame}} object}
 
 \item{prior_intercept_psi}{Prior distribution for the intercept of the
 psi (initial occupancy probability) model; see \code{?priors} for options}
@@ -65,7 +65,7 @@ the detection model}
 in the output. This can greatly increase the size of the model. If
 \code{FALSE}, the values are calculated post-hoc from the posteriors}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as
+\item{...}{Arguments passed to the \code{\link[rstan]{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{
@@ -91,5 +91,5 @@ MacKenzie DI, Nicholas JD, Hines JE, Knutson MG, Franklin AB.
             2003. Ecology 84: 2200-2207.
 }
 \seealso{
-\code{\link{colext}}, \code{\link{unmarkedMultFrame}}
+\code{\link[unmarked]{colext}}, \code{\link[unmarked]{unmarkedMultFrame}}
 }

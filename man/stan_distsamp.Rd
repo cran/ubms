@@ -23,7 +23,7 @@ stan_distsamp(
 \item{formula}{Double right-hand side formula describing covariates of
 detection and occupancy in that order}
 
-\item{data}{A \code{\link{unmarkedFrameDS}} object}
+\item{data}{A \code{\link[unmarked]{unmarkedFrameDS}} object}
 
 \item{keyfun}{One of the following detection functions:
 \code{"halfnorm"} for half-normal, \code{"exp"} for negative exponential,
@@ -51,7 +51,7 @@ scale parameter (i.e., log(scale)) for Hazard-rate models}
 
 \item{prior_sigma}{Prior distribution on random effect standard deviations}
 
-\item{...}{Arguments passed to the \code{\link{stan}} call, such as
+\item{...}{Arguments passed to the \code{\link[rstan]{stan}} call, such as
 number of chains \code{chains} or iterations \code{iter}}
 }
 \value{
@@ -94,5 +94,5 @@ Royle, J. A., Dawson, D. K., & Bates, S. (2004). Modeling
  abundance effects in distance sampling. Ecology 85: 1591-1597.
 }
 \seealso{
-\code{\link{distsamp}}, \code{\link{unmarkedFrameDS}}
+\code{\link[unmarked]{distsamp}}, \code{\link[unmarked]{unmarkedFrameDS}}
 }
