@@ -184,6 +184,11 @@ setMethod("spatial_matrices", "ubmsSubmodelSpatial", function(object, ...){
   message("Building RSR matrices")
   form <- object@spatial
 
+  if(any(object@missing)){
+    stop("Sites with missing covariates not allowed in spatial analysis", 
+         call.=FALSE)
+  }
+
   final_rows <- nrow(object@data) + nrow(object@data_aug)
   data <- rbind(object@data, object@data_aug)
 
@@ -212,6 +217,7 @@ setMethod("get_stan_data", "ubmsSubmodelSpatial", function(object, ...){
   out$n_random_state <- as.array(sm$n_eig)
   X_aug <- model.matrix(object, newdata=object@data_aug)
   offset_aug <- model_offset(object, newdata=object@data_aug)
+  if(length(offset_aug) == 1) offset_aug <- array(offset_aug)
   out <- c(out, sm, list(X_aug=X_aug, n_aug_sites=nrow(X_aug), offset_aug=offset_aug))
   out
 })

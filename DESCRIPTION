@@ -1,6 +1,6 @@
 Package: ubms
-Version: 1.2.7
-Date: 2024-09-30
+Version: 1.2.8
+Date: 2025-09-29
 Title: Bayesian Models for Data from Unmarked Animals using 'Stan'
 Authors@R: person("Ken", "Kellner", email="contact@kenkellner.com", 
                   role=c("cre","aut"))
@@ -19,8 +19,8 @@ Description: Fit Bayesian hierarchical models of animal abundance and occurrence
     Carpenter et al. (2017) <doi:10.18637/jss.v076.i01>;
     Fiske and Chandler (2011) <doi:10.18637/jss.v043.i10>.
 License: GPL (>= 3)
-URL: https://biodiverse.github.io/ubms/
-BugReports: https://github.com/biodiverse/ubms/issues
+URL: https://ecoverseR.github.io/ubms/
+BugReports: https://github.com/ecoverseR/ubms/issues
 Encoding: UTF-8
 RoxygenNote: 7.3.2
 Biarch: true
@@ -37,8 +37,8 @@ Collate: 'RcppExports.R' 'submodel.R' 'response.R' 'inputs.R' 'fit.R'
         'stanmodels.R' 'test-helpers.R' 'ubms-package.R'
         'ubmsFit-methods.R' 'ubmsFitList-methods.R' 'umf.R' 'utils.R'
 NeedsCompilation: yes
-Packaged: 2024-09-30 20:21:35 UTC; ken
+Packaged: 2025-09-29 15:35:20 UTC; ken
 Author: Ken Kellner [cre, aut]
 Maintainer: Ken Kellner <contact@kenkellner.com>
 Repository: CRAN
-Date/Publication: 2024-10-01 05:20:02 UTC
+Date/Publication: 2025-09-29 20:10:02 UTC
