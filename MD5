@@ -1,11 +1,11 @@
-19ea741f408f35946df68a27fa20fa37 *DESCRIPTION
+a08dbbb133642872a01f25f640b1ecc3 *DESCRIPTION
 4afd14a01122b03efa6e78233d922f11 *NAMESPACE
-2028638247322459f2eb2423bdb21dca *NEWS.md
+b4d60df4e37075010a2142b0eddbb493 *NEWS.md
 3e5874cb34d9e6fc6d2d66a5c74b3c63 *R/RcppExports.R
 58a821d8e66f4af154d5f79c33b3d1ea *R/colext.R
 573404858975c782e14830321ae4f03b *R/distsamp.R
 faf8143954f78ff8201572f0dda4d098 *R/fit.R
-11a192b3b1b96207671d6a90effddefa *R/fitlist.R
+5903513a00c5f834311497c36a01d56b *R/fitlist.R
 55245a3e4d4648e816a742b40df1984a *R/fitted.R
 a811a91545449125cbf1a0926a5e938a *R/gof.R
 8d22f0ca50bda75e62c92407fe493458 *R/inputs.R
@@ -36,7 +36,7 @@ c1939fd54d7ce63f9f6cc3f8e63c6ae9 *R/stanmodels.R
 5f4fdae8ef34b7ce5b4d83a526839f68 *R/ubmsFitList-methods.R
 be0d4282870e7a3b4ca983093f85dd55 *R/umf.R
 4364e41438552a5409b1469fd4c1884f *R/utils.R
-50c66f5e32b2d6e840422cc5e6c79fc6 *build/vignette.rds
+9521198d1aa88c24580a374cb2703f1c *build/vignette.rds
 1cc60bdd8610449d30184e0bb374bf46 *configure
 6bea7bdbd44ffa386677bfdec2d1984b *configure.win
 55341a6a90258724248e72a14efc4c18 *inst/CITATION
@@ -48,7 +48,7 @@ be0d4282870e7a3b4ca983093f85dd55 *R/umf.R
 8d1045b1208431e73b801e29214f01e9 *inst/doc/spatial-models.html
 2a430c91f67502ac760202bd5c412084 *inst/doc/ubms.R
 b9c1b73cc47c853fdd8cea35d719eee6 *inst/doc/ubms.Rmd
-2d39f8de591911d3a91b1ca718818e1d *inst/doc/ubms.html
+0fd931114bddde35825725987538a67c *inst/doc/ubms.html
 855c064dbf8deaff96c8dc8a87169109 *inst/include/stan_meta_header.hpp
 97dbeceb732cda3199a2f507f7ec195c *inst/stan/colext.stan
 cc5821f5a2183a0e8ac7e9f5e2226e9c *inst/stan/include/call_loglik_functions.stan
